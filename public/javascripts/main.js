@@ -32,18 +32,12 @@ let sendData = (data) => {
   send(data);
 };
 
+// ... inside setClickHandle
 let setClickHandle = () => {
   // Remove existing handlers to prevent duplicates
   $(".card").off("click");
   $(".card").off("contextmenu");
-  $("#quitGameBtn").off("click");
-
-  // Quit game button
-  $("#quitGameBtn").on("click", function () {
-    if (confirm("Are you sure you want to quit the game?")) {
-      window.location.href = "/";
-    }
-  });
+  // Quit game button handler moved to global init
 
   // Main Card Click Logic
   $(".card").on("click", function () {
@@ -99,6 +93,8 @@ let setClickHandle = () => {
     return false;
   });
 };
+
+// ... (existing code for getCard, createFakeCards, sortDeck, beginLeave, window resize) ...
 
 let getCard = (collection, targetCard) => {
   // Find Card
@@ -160,26 +156,46 @@ $(window).on("resize", () => {
   renderHint();
 });
 
-// Tips modal logic
+// Tips modal logic and Quit Button
 $(function () {
+  // Show Tips Button
   $("#showTips").on("click", function () {
-    // If there's a dynamic hint set (by handlers), show it compactly, otherwise open the full tips modal
-    const hintContent = $("#hints").html().trim();
-    if (hintContent) {
-      // `showHint` is defined in handlers.js and will display the compact hint
-      try {
-        showHint(hintContent, 7000);
-      } catch (e) {
-        $("#tipsModal").fadeIn(120);
-      }
-    } else {
-      $("#tipsModal").fadeIn(120);
-    }
+    $("#tipsModal").fadeIn(120);
   });
+  
+  // Close Tips Button
   $("#closeTips").on("click", function () {
     $("#tipsModal").fadeOut(120);
   });
+  
+  // Click outside modal to close
   $("#tipsModal").on("click", function (e) {
     if (e.target === this) $("#tipsModal").fadeOut(120);
   });
+
+  // Quit Game Button
+  $("#quitGameBtn").on("click", function () {
+    if (confirm("Are you sure you want to quit the game?")) {
+      window.location.href = "/";
+    }
+  });
+
+  // Join the Game
+  let joinGame = () => {
+    let name = "Player";
+    try {
+        name = localStorage.getItem("rummy_username") || "Player";
+    } catch(e) {}
+    
+    sendData({ 
+        cmd: "join", 
+        name: name 
+    });
+  };
+
+  if (socket.readyState === WebSocket.OPEN) {
+    joinGame();
+  } else {
+    socket.addEventListener("open", joinGame);
+  }
 });
