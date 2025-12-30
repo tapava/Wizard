@@ -17,6 +17,21 @@ let hand = [],
 
 let myIndex = -1;
 
+// createFakeCards function - MOVED FROM main.js
+let createFakeCards = (name, n) => {
+  // Creates fake cards (to mask true identity until played/drawn)
+  let cards = [];
+  for (let i = 0; i < n; i++) {
+    let cardHtml = `<div class="card ${name} fake_${i} unknown"></div>`;
+    cards.push({
+      html: cardHtml, // Store raw HTML string
+      suit: "none",
+      rank: "none",
+    });
+  }
+  return cards;
+};
+
 handle.cards = (data) => {
   myIndex = data.myIndex;
   hand = data.hand;
@@ -26,7 +41,9 @@ handle.cards = (data) => {
   playerNames = data.playerNames;
   turn = data.turn;
   phase = data.phase;
-  let opponentCardCounts = data.opponentCardCounts || [0, 0, 0, 0];
+  let opponentCardCounts = Array.isArray(data.opponentCardCounts)
+    ? data.opponentCardCounts
+    : [0, 0, 0, 0];
 
   console.log("handle.cards received:", data);
 
