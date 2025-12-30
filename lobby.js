@@ -89,6 +89,14 @@ class Lobby {
     const idx = this.sockets.indexOf(null);
     this.sockets[idx] = ws;
     if (name) this.playerNames[idx] = name;
+
+    let opponentCardCounts = [];
+    for (let i = 0; i < 4; i++) {
+        opponentCardCounts.push(this.hands[i].length);
+    }
+    // Remove current player's hand count, as it's sent in `hand` field
+    // opponentCardCounts.splice(idx, 1); // No, keep it as absolute indices.
+
     ws.send(
       JSON.stringify({
         cmd: "cards",
@@ -100,6 +108,7 @@ class Lobby {
         playerNames: this.playerNames,
         turn: this.turn,
         phase: this.phase,
+        opponentCardCounts: opponentCardCounts, // New field for opponent hands
       })
     );
   }

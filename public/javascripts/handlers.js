@@ -13,6 +13,7 @@ handle.cards = (data) => {
   playerNames = data.playerNames;
   turn = data.turn;
   phase = data.phase;
+  let opponentCardCounts = data.opponentCardCounts;
 
   // Update Name Badges
   updatePlayerNames(playerNames, myIndex);
@@ -34,23 +35,28 @@ handle.cards = (data) => {
     $("#cards").append(
       `<div class="card _${card.rank} ${card.suit} pile"></div>`
     );
-    card.html = `.card._${card.rank}.${card.suit}.pile`; // Fix selector to be unique if possible, but pile is stack
-    // Actually, to make them unique, we might need an index or just rely on the fact they are in order
-    // But renderDeck uses index.
-    // Let's add a unique class based on index to be safe for removal?
-    // Actually, createFakeCards uses fake_i.
-    // Let's add pile_i
-    $(card.html).addClass(`pile_${i}`); // Wait, card.html is string selector.
-    // Let's just rebuild the selector properly
+    card.html = `.card._${card.rank}.${card.suit}.pile`; 
     $(`.card._${card.rank}.${card.suit}.pile`).last().addClass(`pile_${i}`);
     card.html = `.card._${card.rank}.${card.suit}.pile.pile_${i}`;
   }
 
   // Add deck cards
-  // createFakeCards returns array of objects {html, suit, rank}
   deck = createFakeCards("deck", deckCount);
 
-  renderHand(hand, 0);
+  // Render opponent hands
+  ophands = [[], [], [], []]; // Clear previous ophands
+  for (let i = 0; i < 4; i++) {
+    if (i === myIndex) continue; // Skip my own hand
+
+    let relPos = (myIndex - i + 4) % 4; // Calculate relative position
+    let count = opponentCardCounts[i];
+    
+    // Create fake cards for opponent hand and store in ophands
+    ophands[relPos] = createFakeCards(`opponent${relPos}`, count);
+    renderHand(ophands[relPos], relPos);
+  }
+
+  renderHand(hand, 0); // Render my hand
   renderDeck(pile, false);
   renderDeck(deck, true);
   
@@ -92,6 +98,10 @@ handle.draw = (data) => {
     showHint("You drew a card. Now discard.");
   } else {
     showHint(`${playerNames[data.player]} drew a card.`);
+    let relPos = (myIndex - data.player + 4) % 4;
+    // Add a fake card to opponent's hand
+    ophands[relPos].push(createFakeCards(`opponent${relPos}`, 1)[0]);
+    renderHand(ophands[relPos], relPos);
   }
 
   // Re-render deck and pile to ensure positions are correct
@@ -113,6 +123,15 @@ handle.discard = (data) => {
       let removed = hand.splice(idx, 1)[0];
       $(removed.html).remove(); // Remove my hand card visual
     }
+    renderHand(hand, 0); // Re-render my hand (fill gap)
+  } else {
+    let relPos = (myIndex - data.player + 4) % 4;
+    // Remove a fake card from opponent's hand
+    if (ophands[relPos].length > 0) {
+      let removedCard = ophands[relPos].pop();
+      $(removedCard.html).remove();
+    }
+    renderHand(ophands[relPos], relPos);
   }
 
   // Add to pile (for everyone)
@@ -123,7 +142,7 @@ handle.discard = (data) => {
   );
   data.card.html = `.card._${data.card.rank}.${data.card.suit}.pile.pile_${pileIdx}`;
 
-  renderHand(hand, 0); // Re-render my hand (fill gap)
+  
   renderDeck(pile, false);
   renderDeck(deck, true);
   setClickHandle();
@@ -144,7 +163,8 @@ handle.phase = (data) => {
   if (turn === myIndex) {
       showHint(`Your turn! (${phase})`);
       if (window.RummySounds) RummySounds.play("turn");
-  } else {
+  }
+  else {
       showHint(`${name}'s turn`);
   }
 };
@@ -152,3 +172,4 @@ handle.phase = (data) => {
 handle.exit = () => {
   window.location.href = "/";
 };
+
