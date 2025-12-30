@@ -1,38 +1,156 @@
 <html>
+  <head>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, minimum-scale=1.0"
+    />
 
-<head>
+    <title>Rummy</title>
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+    <link rel="stylesheet" href="/stylesheets/main.css" />
+    <link rel="stylesheet" href="/stylesheets/game.css" />
 
-  <title>Rummy</title>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/flatly/bootstrap.min.css"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.7/css/bootstrap-dialog.min.css"
+      crossorigin="anonymous"
+    />
+  </head>
 
-  <link rel="stylesheet" href="/stylesheets/main.css">
-  <link rel="stylesheet" href="/stylesheets/game.css">
+  <body>
+    <div class="alert" id="alert"></div>
 
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/flatly/bootstrap.min.css" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.7/css/bootstrap-dialog.min.css" crossorigin="anonymous">
+    <div id="cards"></div>
 
-</head>
+    <canvas id="confetti"></canvas>
 
-<body>
+    <div id="hints"></div>
+    <div
+      id="turnTracker"
+      style="
+        position: fixed;
+        top: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10002;
+        color: #fff;
+        background: rgba(0, 0, 0, 0.48);
+        padding: 6px 12px;
+        border-radius: 10px;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        min-width: 260px;
+        text-align: center;
+      "
+    >
+      Waiting...
+    </div>
+    <!-- Helpers removed: use the ? button to open the tips modal so cards remain visible -->
+    <div id="nameBadge0" class="player-badge bottom">You</div>
+    <div id="nameBadge1" class="player-badge left">Player 2</div>
+    <div id="nameBadge2" class="player-badge top">Player 3</div>
+    <div id="nameBadge3" class="player-badge right">Player 4</div>
+    <button
+      id="showTips"
+      title="Show Game Tips"
+      style="
+        position: fixed;
+        top: 18px;
+        left: 18px;
+        z-index: 10000;
+        background: #fff;
+        color: #222;
+        border-radius: 50%;
+        width: 44px;
+        height: 44px;
+        border: none;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+        font-size: 1.7em;
+        cursor: pointer;
+      "
+    >
+      ?
+    </button>
+    <div
+      id="tipsModal"
+      style="
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.32);
+        z-index: 10001;
+        align-items: center;
+        justify-content: center;
+      "
+    >
+      <div
+        style="
+          background: #fff;
+          padding: 32px 28px 24px 28px;
+          border-radius: 14px;
+          max-width: 350px;
+          width: 90vw;
+          box-shadow: 0 4px 32px rgba(0, 0, 0, 0.22);
+          color: #222;
+          position: relative;
+        "
+      >
+        <button
+          id="closeTips"
+          style="
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            color: #888;
+            cursor: pointer;
+          "
+        >
+          &times;
+        </button>
+        <h4 style="margin-top: 0; margin-bottom: 10px; font-weight: bold">
+          How to Play Tunisian Rummy
+        </h4>
+        <ul style="padding-left: 18px; margin-bottom: 0; font-size: 1.08em">
+          <li>
+            Form <b>sets</b> (same rank, different suits) or
+            <b>runs</b> (sequential rank, same suit).
+          </li>
+          <li>You can meld with 3+ cards.</li>
+          <li>Discard to end your turn.</li>
+          <li>First to empty hand wins.</li>
+          <li>Right-click your hand to meld.</li>
+          <li>Left-click to draw/discard.</li>
+          <li>Play with friends or CPU.</li>
+        </ul>
+      </div>
+    </div>
+  </body>
 
-  <div class="alert" id="alert"></div>
-
-  <div id="cards"></div>
-
-  <canvas id="confetti"></canvas>
-
-  <div id="hints"></div>
-
-</body>
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-<script src="/javascripts/socket.js"></script>
-<script src="/javascripts/render.js"></script>
-<script src="/javascripts/handlers.js"></script>
-<script src="/javascripts/main.js"></script>
-<script src="/javascripts/confetti.js"></script>
-
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script
+    src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"
+  ></script>
+  <script src="/javascripts/socket.js"></script>
+  <script src="/javascripts/render.js"></script>
+  <script src="/javascripts/handlers.js"></script>
+  <script src="/javascripts/main.js"></script>
+  <script src="/javascripts/confetti.js"></script>
 </html>

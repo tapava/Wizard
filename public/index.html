@@ -1,39 +1,81 @@
 <html>
+  <head>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, minimum-scale=1.0"
+    />
 
-<head>
+    <title>Rummy</title>
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+    <link rel="stylesheet" href="/stylesheets/main.css" />
 
-  <title>Rummy</title>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/flatly/bootstrap.min.css"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.7/css/bootstrap-dialog.min.css"
+      crossorigin="anonymous"
+    />
+  </head>
 
-  <link rel="stylesheet" href="/stylesheets/main.css">
-
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/flatly/bootstrap.min.css" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.7/css/bootstrap-dialog.min.css" crossorigin="anonymous">
-
-</head>
-
-<body>
-  <div class="page-header">
-    <h1 class="centered">Rummy</h1>
-    <p class="lead centered">Enter or create a game lobby.</p>
-  </div>
-  <div class="justsmallenough centered panel panel-default">
-    <div class="panel-body">
-      <div class="input-group">
-        <input id="code" type="text" class="form-control">
-        <span class="input-group-btn">
-        <button id="lobbybtn" class="btn btn-default" type="button">Join</button>
-        <button style="display: none" id="cpubtn" class="btn btn-warning" type="button">CPU</button>
-        </span>
+  <body>
+    <div class="page-header">
+      <h1 class="centered">Rummy</h1>
+      <p class="lead centered">Enter or create a game lobby.</p>
+    </div>
+    <div class="justsmallenough centered panel panel-default">
+      <div class="panel-body">
+        <div class="input-group">
+          <input
+            id="code"
+            type="text"
+            class="form-control"
+            placeholder="Lobby code"
+          />
+          <input
+            id="name"
+            type="text"
+            class="form-control"
+            style="width: 10em; margin-left: 8px"
+            placeholder="Your name"
+          />
+          <span class="input-group-btn">
+            <button id="lobbybtn" class="btn btn-default" type="button">
+              Create Multiplayer Lobby
+            </button>
+            <button
+              style="display: none"
+              id="cpubtn"
+              class="btn btn-warning"
+              type="button"
+            >
+              Play vs CPU
+            </button>
+          </span>
+        </div>
+        <div
+          class="helper-text centered"
+          style="margin-top: 1em; color: #555; font-size: 1em"
+        >
+          <strong>How to play:</strong> Enter a code and click
+          <b>Create Multiplayer Lobby</b> to play with friends, or
+          <b>Play vs CPU</b> for solo play.<br />
+          Tunisian Rummy: Form sets or runs, discard, and meld cards. First to
+          empty hand wins!
+        </div>
       </div>
     </div>
-  </div>
-</body>
+  </body>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<script src="/javascripts/socket.js"></script>
-<script src="/javascripts/index.js"></script>
-
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="/javascripts/socket.js"></script>
+  <script src="/javascripts/index.js"></script>
 </html>

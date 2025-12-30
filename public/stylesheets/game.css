@@ -1,6 +1,8 @@
 body {
   background-color: #252525 !important;
   overflow: hidden;
+  margin: 0;
+  padding: 0;
 }
 
 #cards {
@@ -25,16 +27,79 @@ body {
 }
 
 #hints {
-  color: #FAFAFA;
-  -webkit-transition: -webkit-transform .5s ease-out;
-  transition: -webkit-transform .5s ease-out;
-  transition: -ms-transform .5s ease-out;
-  transition: transform .5s ease-out;
+  color: #fafafa;
+  -webkit-transition: -webkit-transform 0.5s ease-out;
+  transition: -webkit-transform 0.5s ease-out;
+  transition: -ms-transform 0.5s ease-out;
+  transition: transform 0.5s ease-out;
+}
+
+/* Compact hint box (top-right) - keeps it small and non-blocking */
+#hints {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  min-width: 220px;
+  max-width: 320px;
+  background: rgba(40, 40, 40, 0.72);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.95em;
+  z-index: 9998;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  display: none; /* only show when needed via JS */
+}
+
+/* Tips modal button tweaks */
+#showTips {
+  outline: none;
+}
+#tipsModal > div {
+  max-height: 85vh;
+  overflow: auto;
+}
+
+/* Player name badges */
+.player-badge {
+  position: fixed;
+  z-index: 10003;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+.player-badge.bottom {
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 8px;
+}
+.player-badge.top {
+  left: 50%;
+  transform: translateX(-50%);
+  top: 72px;
+}
+.player-badge.left {
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.player-badge.right {
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.player-badge.active {
+  background: linear-gradient(90deg, #ffb86b, #ff6b6b);
+  color: #222;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 /* Original Cards/Image @ http://www.rummytastic.com/ */
 .card {
-  background-image: url('../cards.png');
+  background-image: url("../cards.png");
   -webkit-background-size: 2004px 800px;
   background-size: 2004px 800px;
   width: 141px;
@@ -43,10 +108,10 @@ body {
   z-index: 2;
   border: 1px solid #333;
   border-radius: 10px;
-  -webkit-transition: -webkit-transform .6s ease-out;
-  transition: -webkit-transform .6s ease-out;
-  transition: -ms-transform .6s ease-out;
-  transition: transform .6s ease-out;
+  -webkit-transition: -webkit-transform 0.6s ease-out;
+  transition: -webkit-transform 0.6s ease-out;
+  transition: -ms-transform 0.6s ease-out;
+  transition: transform 0.6s ease-out;
   -webkit-transform: translateX(0px) translateY(0px) rotateZ(0deg);
   -ms-transform: translateX(0px) translateY(0px) rotateZ(0deg);
   transform: translateX(0px) translateY(0px) rotateZ(0deg);
