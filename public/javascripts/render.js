@@ -142,3 +142,39 @@ let renderHint = () => {
 
   setElementPos({ html: "#hints" }, $(window).width() - 200, 10, 9999);
 };
+
+let updatePlayerNames = (names, myIdx) => {
+  // Map absolute player indices to relative positions
+  // 0=Me, 1=Right, 2=Top, 3=Left (Anti-clockwise from my perspective)
+  
+  // Logic from main.js getRelativePos:
+  // let getRelativePos = (actorIndex) => {
+  //   let diff = (myIndex - actorIndex + 4) % 4;
+  //   return diff;
+  // };
+  
+  // And matching with UI:
+  // relPos 0 -> #nameBadge0 (Bottom/Me)
+  // relPos 1 -> #nameBadge3 (Right)
+  // relPos 2 -> #nameBadge2 (Top)
+  // relPos 3 -> #nameBadge1 (Left)
+
+  for (let i = 0; i < 4; i++) {
+    let name = names[i];
+    // Default to "CPU" if name is empty or just "Player X"
+    if (!name) name = `CPU ${i}`;
+    
+    let relPos = (myIdx - i + 4) % 4; // 0, 1, 2, 3
+    
+    // Assign to correct badge
+    if (relPos === 0) {
+      $("#nameBadge0").text(name);
+    } else if (relPos === 1) {
+      $("#nameBadge3").text(name);
+    } else if (relPos === 2) {
+      $("#nameBadge2").text(name);
+    } else if (relPos === 3) {
+      $("#nameBadge1").text(name);
+    }
+  }
+};

@@ -14,6 +14,9 @@ handle.cards = (data) => {
   turn = data.turn;
   phase = data.phase;
 
+  // Update Name Badges
+  updatePlayerNames(playerNames, myIndex);
+
   // Clear previous cards
   $("#cards").empty();
 
