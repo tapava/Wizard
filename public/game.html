@@ -28,105 +28,23 @@
   </head>
 
   <body>
+    <div class="game-bg"></div>
     <div class="alert" id="alert"></div>
-
     <div id="cards"></div>
-
     <canvas id="confetti"></canvas>
-
     <div id="hints"></div>
-    <div
-      id="turnTracker"
-      style="
-        position: fixed;
-        top: 12px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 10002;
-        color: #fff;
-        background: rgba(0, 0, 0, 0.48);
-        padding: 6px 12px;
-        border-radius: 10px;
-        font-weight: 600;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        min-width: 260px;
-        text-align: center;
-      "
-    >
-      Waiting...
-    </div>
-    <!-- Helpers removed: use the ? button to open the tips modal so cards remain visible -->
+    <div id="turnTracker" class="turn-tracker">Waiting...</div>
+    <button id="quitGameBtn" class="quit-btn" title="Quit Game">Quit</button>
     <div id="nameBadge0" class="player-badge bottom">You</div>
     <div id="nameBadge1" class="player-badge left">Player 2</div>
     <div id="nameBadge2" class="player-badge top">Player 3</div>
     <div id="nameBadge3" class="player-badge right">Player 4</div>
-    <button
-      id="showTips"
-      title="Show Game Tips"
-      style="
-        position: fixed;
-        top: 18px;
-        left: 18px;
-        z-index: 10000;
-        background: #fff;
-        color: #222;
-        border-radius: 50%;
-        width: 44px;
-        height: 44px;
-        border: none;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
-        font-size: 1.7em;
-        cursor: pointer;
-      "
-    >
-      ?
-    </button>
-    <div
-      id="tipsModal"
-      style="
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0, 0, 0, 0.32);
-        z-index: 10001;
-        align-items: center;
-        justify-content: center;
-      "
-    >
-      <div
-        style="
-          background: #fff;
-          padding: 32px 28px 24px 28px;
-          border-radius: 14px;
-          max-width: 350px;
-          width: 90vw;
-          box-shadow: 0 4px 32px rgba(0, 0, 0, 0.22);
-          color: #222;
-          position: relative;
-        "
-      >
-        <button
-          id="closeTips"
-          style="
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: none;
-            border: none;
-            font-size: 1.5em;
-            color: #888;
-            cursor: pointer;
-          "
-        >
-          &times;
-        </button>
-        <h4 style="margin-top: 0; margin-bottom: 10px; font-weight: bold">
-          How to Play Tunisian Rummy
-        </h4>
-        <ul style="padding-left: 18px; margin-bottom: 0; font-size: 1.08em">
+    <button id="showTips" class="tips-btn" title="Show Game Tips">?</button>
+    <div id="tipsModal" class="tips-modal">
+      <div class="tips-content">
+        <button id="closeTips" class="close-tips">&times;</button>
+        <h4>How to Play Tunisian Rummy</h4>
+        <ul>
           <li>
             Form <b>sets</b> (same rank, different suits) or
             <b>runs</b> (sequential rank, same suit).
@@ -153,4 +71,5 @@
   <script src="/javascripts/handlers.js"></script>
   <script src="/javascripts/main.js"></script>
   <script src="/javascripts/confetti.js"></script>
+  <script src="/sounds.js"></script>
 </html>

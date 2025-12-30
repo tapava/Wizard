@@ -27,49 +27,47 @@
   </head>
 
   <body>
-    <div class="page-header">
-      <h1 class="centered">Rummy</h1>
-      <p class="lead centered">Enter or create a game lobby.</p>
-    </div>
-    <div class="justsmallenough centered panel panel-default">
-      <div class="panel-body">
-        <div class="input-group">
+    <div class="home-container">
+      <div class="home-card">
+        <h1 class="home-title">Tunisian Rummy</h1>
+        <p class="home-subtitle">Play with friends or vs CPU</p>
+        <div class="home-inputs">
           <input
             id="code"
             type="text"
-            class="form-control"
-            placeholder="Lobby code"
+            class="home-input"
+            placeholder="Lobby Code"
+            maxlength="12"
           />
           <input
             id="name"
             type="text"
-            class="form-control"
-            style="width: 10em; margin-left: 8px"
-            placeholder="Your name"
+            class="home-input"
+            placeholder="Your Name"
+            maxlength="16"
           />
-          <span class="input-group-btn">
-            <button id="lobbybtn" class="btn btn-default" type="button">
-              Create Multiplayer Lobby
-            </button>
-            <button
-              style="display: none"
-              id="cpubtn"
-              class="btn btn-warning"
-              type="button"
-            >
-              Play vs CPU
-            </button>
-          </span>
         </div>
-        <div
-          class="helper-text centered"
-          style="margin-top: 1em; color: #555; font-size: 1em"
-        >
+        <div class="home-buttons">
+          <button id="lobbybtn" class="home-btn primary" type="button">
+            Create Multiplayer Lobby
+          </button>
+          <button
+            id="cpubtn"
+            class="home-btn secondary"
+            type="button"
+            style="display: none"
+          >
+            Play vs CPU
+          </button>
+        </div>
+        <div class="home-helper">
           <strong>How to play:</strong> Enter a code and click
           <b>Create Multiplayer Lobby</b> to play with friends, or
           <b>Play vs CPU</b> for solo play.<br />
-          Tunisian Rummy: Form sets or runs, discard, and meld cards. First to
-          empty hand wins!
+          <span class="rules"
+            >Form sets or runs, discard, and meld cards. First to empty hand
+            wins!</span
+          >
         </div>
       </div>
     </div>

@@ -7,21 +7,21 @@ let code = params[4],
   token = params[5];
 
 // Local Game Objects
-// Note: The server verifies their integrity to prevent Front-End tampering/cheating
 let hand = [],
-  ophands = [[], [], [], []], // Array of opponent hands (mapped by relative index 1, 2, 3)
-  // Actually, simpler to just map by index?
-  // Let's store by relative index: 1 (Left), 2 (Top), 3 (Right)
-  // So ophands[1] = Left Player's cards, etc.
+  ophands = [[], [], [], []], // Array of opponent hands
   deck = [],
   draw = [],
-  melds = [];
+  melds = [],
+  pile = [], // Discard pile
+  playerNames = [],
+  turn = -1,
+  phase = ""; // "draw" or "discard"
 
 let myIndex = -1;
 
-// Helper to get relative position (0=Me, 1=Left, 2=Top, 3=Right)
+// Helper to get relative position (0=Me, 1=Right, 2=Top, 3=Left) for anticlockwise Tunisian Rummy
 let getRelativePos = (actorIndex) => {
-  let diff = (actorIndex - myIndex + 4) % 4;
+  let diff = (myIndex - actorIndex + 4) % 4;
   return diff;
 };
 
@@ -31,49 +31,71 @@ let sendData = (data) => {
   data.token = token;
   send(data);
 };
-// ... (rest of file) ...
-
-// Inside socket.onmessage (which is usually inside connect() or similar, wait, main.js doesn't show socket setup)
-// socket.js handles the connection and calls handlers?
-// Let's check socket.js or index.js.
-// 'main.js' seems to define global vars.
-// 'index.js' probably sets up the socket.
 
 let setClickHandle = () => {
-  // Set the onClick handler for all cards
+  // Remove existing handlers to prevent duplicates
+  $(".card").off("click");
+  $(".card").off("contextmenu");
+  $("#quitGameBtn").off("click");
 
-  let sendClick = (name, left = true) => {
-    if (name.includes("unknown")) {
-      if (name.includes("deck")) {
-        sendData({
-          cmd: "click",
-          button: left ? "left" : "right",
-          card: "deck",
-        });
-      }
-    } else {
-      [_, rank, suit] = name.split(" ");
-      sendData({
-        cmd: "click",
-        button: left ? "left" : "right",
-        card: "notdeck",
-        rank: rank.replace("_", ""),
-        suit: suit,
-      });
+  // Quit game button
+  $("#quitGameBtn").on("click", function () {
+    if (confirm("Are you sure you want to quit the game?")) {
+      window.location.href = "/";
     }
-  };
-
-  $(".card").on("click", function () {
-    sendClick(this.className, (left = true));
   });
 
+  // Main Card Click Logic
+  $(".card").on("click", function () {
+    let classes = $(this).attr("class");
+    
+    // Check if it's my turn
+    if (turn !== myIndex) {
+      console.log("Not my turn");
+      return;
+    }
+
+    // DRAW PHASE
+    if (phase === "draw") {
+      if (classes.includes("deck")) {
+        // Draw from Deck
+        console.log("Drawing from deck");
+        if (window.RummySounds) RummySounds.play("draw");
+        sendData({ cmd: "draw", from: "deck" });
+      } else if (classes.includes("pile")) {
+        // Draw from Discard Pile
+        // Only allow drawing the top card (visually the last one appended or highest z-index)
+        // For simplicity, any click on the pile triggers draw from pile
+        console.log("Drawing from pile");
+        if (window.RummySounds) RummySounds.play("draw");
+        sendData({ cmd: "draw", from: "pile" });
+      }
+    } 
+    // DISCARD PHASE
+    else if (phase === "discard") {
+      if (classes.includes("myhand")) {
+        // Discard a card from hand
+        let [_, rank, suit] = classes.split(" ");
+        // Class format is usually "card _RANK SUIT myhand"
+        // rank is like "_7", so remove _
+        rank = rank.replace("_", "");
+        
+        console.log("Discarding", rank, suit);
+        if (window.RummySounds) RummySounds.play("discard");
+        sendData({ 
+          cmd: "discard", 
+          card: { rank, suit } 
+        });
+      }
+    }
+  });
+
+  // Prevent context menu
   $(".card").on("contextmenu", function () {
-    sendClick(this.className, (left = false));
     return false;
   });
 
   $("body").on("contextmenu", function () {
-    // Prevent accedental right click
     return false;
   });
 };
