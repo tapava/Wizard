@@ -4,6 +4,19 @@ let showHint = (msg, t = 3000) => {
   if (t > 0) setTimeout(() => $("#hints").fadeOut(300), t);
 };
 
+// Global Game Objects - Moved from main.js
+let hand = [],
+  ophands = [[], [], [], []], // Array of opponent hands
+  deck = [],
+  draw = [],
+  melds = [],
+  pile = [], // Discard pile
+  playerNames = [],
+  turn = -1,
+  phase = ""; // "draw" or "discard"
+
+let myIndex = -1;
+
 handle.cards = (data) => {
   myIndex = data.myIndex;
   hand = data.hand;
@@ -13,140 +26,132 @@ handle.cards = (data) => {
   playerNames = data.playerNames;
   turn = data.turn;
   phase = data.phase;
-  let opponentCardCounts = data.opponentCardCounts;
+  let opponentCardCounts = data.opponentCardCounts || [0, 0, 0, 0];
+
+  console.log("handle.cards received:", data);
 
   // Update Name Badges
   updatePlayerNames(playerNames, myIndex);
 
-  // Clear previous cards
-  $("#cards").empty();
+  // Clear previous cards and containers
+  $("#cards").empty(); // This clears all hand containers, deck, and pile too.
 
-  // Add hand cards to DOM
-  for (let card of hand) {
-    $("#cards").append(
-      `<div class="card _${card.rank} ${card.suit} myhand"></div>`
-    );
-    card.html = `.card._${card.rank}.${card.suit}.myhand`;
-  }
+  // Prepare cards for my hand
+  hand.forEach((card) => {
+    card.html = `<div class="card _${card.rank} ${card.suit} myhand"></div>`;
+  });
 
-  // Add pile cards to DOM
-  for (let i = 0; i < pile.length; i++) {
-    let card = pile[i];
-    $("#cards").append(
-      `<div class="card _${card.rank} ${card.suit} pile"></div>`
-    );
-    card.html = `.card._${card.rank}.${card.suit}.pile`; 
-    $(`.card._${card.rank}.${card.suit}.pile`).last().addClass(`pile_${i}`);
-    card.html = `.card._${card.rank}.${card.suit}.pile.pile_${i}`;
-  }
+  // Prepare cards for pile
+  pile.forEach((card, i) => {
+    card.html = `<div class="card _${card.rank} ${card.suit} pile pile_${i}"></div>`;
+  });
 
-  // Add deck cards
-  deck = createFakeCards("deck", deckCount);
+  // Prepare cards for deck
+  deck = createFakeCards("deck", deckCount); // createFakeCards now returns objects with html string
 
-  // Render opponent hands
+  // Prepare opponent hands
   ophands = [[], [], [], []]; // Clear previous ophands
   for (let i = 0; i < 4; i++) {
     if (i === myIndex) continue; // Skip my own hand
 
     let relPos = (myIndex - i + 4) % 4; // Calculate relative position
     let count = opponentCardCounts[i];
-    
+
     // Create fake cards for opponent hand and store in ophands
-    ophands[relPos] = createFakeCards(`opponent${relPos}`, count);
+    ophands[relPos] = createFakeCards(`opponent${relPos}`, count); // returns array of {html: string}
+  }
+
+  // Now render everything
+  renderHand(hand, 0); // Render my hand
+  renderDeck(pile, false); // Render discard pile
+  renderDeck(deck, true); // Render main deck
+
+  // Render opponent hands after deck/pile so they don't overlap in z-index issues
+  for (let i = 0; i < 4; i++) {
+    if (i === myIndex) continue;
+    let relPos = (myIndex - i + 4) % 4;
     renderHand(ophands[relPos], relPos);
   }
 
-  renderHand(hand, 0); // Render my hand
-  renderDeck(pile, false);
-  renderDeck(deck, true);
-  
   setClickHandle();
-  
-  if(turn === myIndex) {
-      showHint(`Your turn! (${phase})`);
+
+  if (turn === myIndex) {
+    showHint(`Your turn! (${phase})`);
   } else {
-      showHint(`Waiting for ${playerNames[turn]}...`);
+    showHint(`Waiting for ${playerNames[turn]}...`);
   }
 };
 
 handle.draw = (data) => {
+  console.log("handle.draw received:", data);
   // Update Global State
   phase = "discard"; // After draw, it's always discard phase
-  
+
   // Visual Updates for Deck/Pile
   if (data.from === "deck") {
     if (deck.length > 0) {
-      let cardToRemove = deck.pop();
-      $(cardToRemove.html).remove();
+      deck.pop(); // Remove from data array
+      renderDeck(deck, true); // Re-render to update count/position
     }
   } else if (data.from === "pile") {
     if (pile.length > 0) {
-      let cardToRemove = pile.pop();
-      $(cardToRemove.html).remove();
+      pile.pop(); // Remove from data array
+      renderDeck(pile, false); // Re-render to update count/position
     }
   }
 
   // If it's ME, add to hand
   if (data.player === myIndex) {
+    data.card.html = `<div class="card _${data.card.rank} ${data.card.suit} myhand"></div>`;
     hand.push(data.card);
-    // Add drawn card to DOM
-    $("#cards").append(
-      `<div class="card _${data.card.rank} ${data.card.suit} myhand"></div>`
-    );
-    data.card.html = `.card._${data.card.rank}.${data.card.suit}.myhand`;
     renderHand(hand, 0);
     showHint("You drew a card. Now discard.");
   } else {
     showHint(`${playerNames[data.player]} drew a card.`);
     let relPos = (myIndex - data.player + 4) % 4;
     // Add a fake card to opponent's hand
-    ophands[relPos].push(createFakeCards(`opponent${relPos}`, 1)[0]);
+    let newFakeCard = createFakeCards(`opponent${relPos}`, 1)[0]; // returns {html: string}
+    ophands[relPos].push(newFakeCard);
     renderHand(ophands[relPos], relPos);
+    console.log(
+      `Opponent ${data.player} (relPos ${relPos}) drew. New hand:`,
+      ophands[relPos]
+    );
   }
 
-  // Re-render deck and pile to ensure positions are correct
-  renderDeck(deck, true);
-  renderDeck(pile, false);
   setClickHandle();
 };
 
 handle.discard = (data) => {
+  console.log("handle.discard received:", data);
   // Global State Update
   // Turn passes to next player handled by 'phase' message usually, but here we can anticipate or wait for phase msg
-  
+
   if (data.player === myIndex) {
     // Remove from hand
     let idx = hand.findIndex(
       (c) => c.suit === data.card.suit && c.rank === data.card.rank
     );
     if (idx !== -1) {
-      let removed = hand.splice(idx, 1)[0];
-      $(removed.html).remove(); // Remove my hand card visual
+      hand.splice(idx, 1); // Remove from data array
     }
     renderHand(hand, 0); // Re-render my hand (fill gap)
   } else {
     let relPos = (myIndex - data.player + 4) % 4;
     // Remove a fake card from opponent's hand
     if (ophands[relPos].length > 0) {
-      let removedCard = ophands[relPos].pop();
-      $(removedCard.html).remove();
+      ophands[relPos].pop(); // Remove from data array
     }
     renderHand(ophands[relPos], relPos);
   }
 
   // Add to pile (for everyone)
+  data.card.html = `<div class="card _${data.card.rank} ${data.card.suit} pile"></div>`;
   pile.push(data.card);
-  let pileIdx = pile.length - 1;
-  $("#cards").append(
-    `<div class="card _${data.card.rank} ${data.card.suit} pile pile_${pileIdx}"></div>`
-  );
-  data.card.html = `.card._${data.card.rank}.${data.card.suit}.pile.pile_${pileIdx}`;
+  renderDeck(pile, false); // Re-render to show new top card
 
-  
-  renderDeck(pile, false);
-  renderDeck(deck, true);
   setClickHandle();
-  
+
   if (data.player === myIndex) {
     showHint("You discarded. Next player turn.");
   } else {
@@ -159,17 +164,15 @@ handle.phase = (data) => {
   phase = data.phase;
   let name = playerNames ? playerNames[turn] : `Player ${turn}`;
   $("#turnTracker").text(`Turn: ${name}`);
-  
+
   if (turn === myIndex) {
-      showHint(`Your turn! (${phase})`);
-      if (window.RummySounds) RummySounds.play("turn");
-  }
-  else {
-      showHint(`${name}'s turn`);
+    showHint(`Your turn! (${phase})`);
+    if (window.RummySounds) RummySounds.play("turn");
+  } else {
+    showHint(`${name}'s turn`);
   }
 };
 
 handle.exit = () => {
   window.location.href = "/";
 };
-

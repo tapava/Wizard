@@ -6,7 +6,8 @@ let params = window.location.href.split("/"); // Extract Code and Token from URL
 let code = params[4],
   token = params[5];
 
-// Local Game Objects
+// Local Game Objects - MOVED TO handlers.js
+/*
 let hand = [],
   ophands = [[], [], [], []], // Array of opponent hands
   deck = [],
@@ -18,6 +19,7 @@ let hand = [],
   phase = ""; // "draw" or "discard"
 
 let myIndex = -1;
+*/
 
 // Helper to get relative position (0=Me, 1=Right, 2=Top, 3=Left) for anticlockwise Tunisian Rummy
 let getRelativePos = (actorIndex) => {
@@ -96,6 +98,8 @@ let setClickHandle = () => {
 
 // ... (existing code for getCard, createFakeCards, sortDeck, beginLeave, window resize) ...
 
+// ... (existing code for getCard, sortDeck, beginLeave, window resize) ...
+
 let getCard = (collection, targetCard) => {
   // Find Card
   for (let card of collection) {
@@ -106,19 +110,21 @@ let getCard = (collection, targetCard) => {
   return null;
 };
 
+/* createFakeCards function moved to handlers.js
 let createFakeCards = (name, n) => {
   // Creates fake cards (to mask true identity until played/drawn)
   let cards = [];
   for (let i = 0; i < n; i++) {
-    $("#cards").append(`<div class="card ${name} fake_${i} unknown"></div>`);
+    let cardHtml = `<div class="card ${name} fake_${i} unknown"></div>`;
     cards.push({
-      html: `.card.fake_${i}.${name}`,
+      html: cardHtml, // Store raw HTML string
       suit: "none",
       rank: "none",
     });
   }
   return cards;
 };
+*/
 
 let sortDeck = (cards) => {
   // In-place sorts cards
@@ -147,11 +153,11 @@ let beginLeave = () => {
 $(window).on("resize", () => {
   // Re-render all elements when the window size changes
   renderHand(hand, 0);
-  if (ophands[1]) renderHand(ophands[1], 1);
-  if (ophands[2]) renderHand(ophands[2], 2);
-  if (ophands[3]) renderHand(ophands[3], 3);
-  renderDeck(deck, (left = true));
-  renderDeck(draw);
+  renderHand(ophands[1], 1);
+  renderHand(ophands[2], 2);
+  renderHand(ophands[3], 3);
+  renderDeck(deck, true); // Render the deck
+  renderDeck(pile, false); // Render the pile
   renderMelds(melds);
   renderHint();
 });

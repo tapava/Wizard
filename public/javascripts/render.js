@@ -4,9 +4,8 @@
 
 let setElementPos = (element, x, y, z = 2, degs = 0) => {
   // Sets an elements position via CSS
-  // Scale down cards to fit 4 players
-  let scale = 0.6;
-  $(element.html).css({
+  // `element` is now a jQuery object or a DOM element
+  $(element).css({
     transform: `translateX(${x}px) translateY(${y}px) rotateZ(${degs}deg) scale(${scale})`,
     MozTransform: `translateX(${x}px) translateY(${y}px) rotateZ(${degs}deg) scale(${scale})`,
     WebkitTransform: `translateX(${x}px) translateY(${y}px) rotateZ(${degs}deg) scale(${scale})`,
@@ -26,6 +25,13 @@ let setGlow = (selector, amt, color) => {
 
 let renderHand = (handCards, position = 0) => {
   // Renders hand (0=Bottom, 1=Left, 2=Top, 3=Right)
+  // Each hand now has its own container within #cards, e.g., #hand-pos-0
+
+  let handContainerId = `#hand-pos-${position}`;
+  if ($(handContainerId).length === 0) {
+    $("#cards").append(`<div id="hand-pos-${position}" class="hand-container"></div>`);
+  }
+  $(handContainerId).empty(); // Clear existing cards in this container
 
   if (position === 0) {
     sortDeck(handCards);
@@ -61,10 +67,20 @@ let renderHand = (handCards, position = 0) => {
   let dangle = position === 0 || position === 1 ? -4 : 4;
   if (position === 1) dangle = -4;
   if (position === 3) dangle = 4;
+
+  // Append new cards to the container first
+  let appendedCardElements = [];
+  for(let card of handCards) {
+    let $cardElement = $(card.html);
+    $(handContainerId).append($cardElement);
+    appendedCardElements.push($cardElement);
+  }
+
+  // Then position them
   if (handCards.length % 2 == 1) {
     leftIndex = half - 1;
     rightIndex = half + 1;
-    setElementPos(handCards[half], cx, cy, half + 100, baseRot);
+    setElementPos(appendedCardElements[half], cx, cy, half + 100, baseRot);
   } else {
     leftIndex = half - 1;
     rightIndex = half;
@@ -72,14 +88,14 @@ let renderHand = (handCards, position = 0) => {
   while (leftIndex >= 0) {
     if (position === 0 || position === 2) {
       setElementPos(
-        handCards[leftIndex],
+        appendedCardElements[leftIndex],
         cx - (half - leftIndex) * cardSpacing,
         cy,
         leftIndex + 100,
         baseRot + i * dangle
       );
       setElementPos(
-        handCards[rightIndex],
+        appendedCardElements[rightIndex],
         cx + (rightIndex - half) * cardSpacing,
         cy,
         rightIndex + 100,
@@ -87,14 +103,14 @@ let renderHand = (handCards, position = 0) => {
       );
     } else {
       setElementPos(
-        handCards[leftIndex],
+        appendedCardElements[leftIndex],
         cx,
         cy - (half - leftIndex) * cardSpacing,
         leftIndex + 100,
         baseRot + i * dangle
       );
       setElementPos(
-        handCards[rightIndex],
+        appendedCardElements[rightIndex],
         cx,
         cy + (rightIndex - half) * cardSpacing,
         rightIndex + 100,
@@ -107,25 +123,48 @@ let renderHand = (handCards, position = 0) => {
   }
 };
 
-let renderDeck = (cards, left = false) => {
-  // Renders deck (for both deck and face up draw pile)
+let renderDeck = (cards, isDeck = false) => {
+  // Renders deck (isDeck=true for main deck, isDeck=false for discard pile)
+  let containerId = isDeck ? "#deck-container" : "#pile-container";
+  if ($(containerId).length === 0) {
+    $("#cards").append(`<div id="${isDeck ? "deck-container" : "pile-container"}" class="card-stack-container"></div>`);
+  }
+  $(containerId).empty();
 
-  let offset = left ? $(window).width() / 2 - 200 : $(window).width() / 2 + 40;
+  let offset = isDeck ? $(window).width() / 2 - 200 : $(window).width() / 2 + 40;
 
-  for (let i in cards) {
-    setElementPos(cards[i], offset, $(window).height() / 2 - 99, i + 2, 0);
+  let appendedCardElements = [];
+  for(let card of cards) {
+    let $cardElement = $(card.html);
+    $(containerId).append($cardElement);
+    appendedCardElements.push($cardElement);
+  }
+
+  for (let i = 0; i < appendedCardElements.length; i++) {
+    setElementPos(appendedCardElements[i], offset, $(window).height() / 2 - 99, i + 2, 0);
   }
 };
 
 let renderMelds = (melds) => {
   // Renders Melds
+  // This function will need similar adjustments if melds are not appearing
+  // For now, it might be fine if melds are appended directly to #cards with unique IDs
+  // ...
+  let meldsContainerId = "#melds-container";
+  if ($(meldsContainerId).length === 0) {
+    $("#cards").append(`<div id="melds-container"></div>`);
+  }
+  $(meldsContainerId).empty();
 
   let height = 10,
     offset = 10;
 
   for (let i in melds) {
     for (let j in melds[i]) {
-      setElementPos(melds[i][j], offset + j * 20, height, i + j + 100, 0);
+      let card = melds[i][j];
+      let $cardElement = $(card.html);
+      $(meldsContainerId).append($cardElement);
+      setElementPos($cardElement, offset + j * 20, height, i + j + 100, 0);
     }
 
     height += 220;
