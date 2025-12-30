@@ -18,6 +18,9 @@ class Lobby {
     this.melds = [];
     this.isWaiting = !isCPU; // Multiplayer waits, CPU game starts immediately
     this._setupGame();
+    if (this.isCPU && this.turn !== 0) {
+        this._processCPUTurn();
+    }
   }
 
   // Setup deck, hands, pile
@@ -78,6 +81,10 @@ class Lobby {
     ) {
       this._handleDiscard(idx, data.card);
     }
+    // After any human action, check if it's now a CPU turn
+    if (this.isCPU && this.turn !== 0) { // Only if CPU game and current turn is not human player
+        this._processCPUTurn();
+    }
   }
 
   // Handle player joining
@@ -127,6 +134,10 @@ class Lobby {
       this.phase = "discard";
       this._broadcast({ cmd: "phase", phase: this.phase, turn: this.turn });
     }
+    // If a CPU drew, it's now their discard phase, trigger CPU turn again
+    if (this.isCPU && idx !== 0 && this.phase === "discard") {
+        this._processCPUTurn();
+    }
   }
 
   // Handle discarding a card
@@ -144,6 +155,44 @@ class Lobby {
       this.phase = "draw";
       this._broadcast({ cmd: "phase", phase: this.phase, turn: this.turn });
     }
+    // After any discard, if it's a CPU game and next turn is CPU, trigger CPU turn
+    if (this.isCPU && this.turn !== 0) {
+        this._processCPUTurn();
+    }
+  }
+
+  // AI for CPU players
+  _processCPUTurn() {
+    if (!this.isCPU || this.turn === 0) return; // Only for CPU players, not human
+
+    const cpuIndex = this.turn;
+    const cpuHand = this.hands[cpuIndex];
+    const delay = 1000; // 1 second delay for CPU "thinking"
+
+    setTimeout(() => {
+      if (this.phase === "draw") {
+        // Simple AI: always draw from deck if available, otherwise from pile
+        let from = "deck";
+        if (this.deck.length === 0 && this.pile.length > 0) {
+            from = "pile";
+        } else if (this.deck.length === 0 && this.pile.length === 0) {
+            // No cards to draw, this shouldn't happen in a normal game flow
+            console.log(`CPU ${cpuIndex} has no cards to draw!`);
+            return;
+        }
+        this._handleDraw(cpuIndex, from);
+      } else if (this.phase === "discard") {
+        // Simple AI: discard a random card from hand
+        if (cpuHand.length > 0) {
+          const randomIndex = Math.floor(Math.random() * cpuHand.length);
+          const cardToDiscard = cpuHand[randomIndex];
+          this._handleDiscard(cpuIndex, cardToDiscard);
+        } else {
+            // No cards to discard, this shouldn't happen
+            console.log(`CPU ${cpuIndex} has no cards to discard!`);
+        }
+      }
+    }, delay);
   }
 
   // Broadcast to all players
