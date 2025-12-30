@@ -44,7 +44,7 @@ let setClickHandle = () => {
   // Main Card Click Logic
   $(".card").on("click", function () {
     let classes = $(this).attr("class");
-    
+
     // Check if it's my turn
     if (turn !== myIndex) {
       console.log("Not my turn");
@@ -66,7 +66,7 @@ let setClickHandle = () => {
         if (window.RummySounds) RummySounds.play("draw");
         sendData({ cmd: "draw", from: "pile" });
       }
-    } 
+    }
     // DISCARD PHASE
     else if (phase === "discard") {
       if (classes.includes("myhand")) {
@@ -75,12 +75,12 @@ let setClickHandle = () => {
         // Class format is usually "card _RANK SUIT myhand"
         // rank is like "_7", so remove _
         rank = rank.replace("_", "");
-        
+
         console.log("Discarding", rank, suit);
         if (window.RummySounds) RummySounds.play("discard");
-        sendData({ 
-          cmd: "discard", 
-          card: { rank, suit } 
+        sendData({
+          cmd: "discard",
+          card: { rank, suit },
         });
       }
     }
@@ -164,40 +164,22 @@ $(window).on("resize", () => {
 
 // Tips modal logic and Quit Button
 $(function () {
-  // Show Tips Button
-  $("#showTips").on("click", function () {
-    $("#tipsModal").fadeIn(120);
-  });
-  
-  // Close Tips Button
-  $("#closeTips").on("click", function () {
-    $("#tipsModal").fadeOut(120);
-  });
-  
-  // Click outside modal to close
+  // Always join the game and request initial card data on page load
+  let name = "Player";
+  try {
+    name = localStorage.getItem("rummy_username") || "Player";
+  } catch (e) {}
+  sendData({ cmd: "join", name });
+
+  // Minimal UI setup for tips and quit
+  $("#showTips").on("click", () => $("#tipsModal").fadeIn(120));
+  $("#closeTips").on("click", () => $("#tipsModal").fadeOut(120));
   $("#tipsModal").on("click", function (e) {
     if (e.target === this) $("#tipsModal").fadeOut(120);
   });
-
-  // Quit Game Button
-  $("#quitGameBtn").on("click", function () {
-    if (confirm("Are you sure you want to quit the game?")) {
-      window.location.href = "/";
-    }
+  $("#quitGameBtn").on("click", () => {
+    window.location.href = "/";
   });
-
-  // Join the Game
-  let joinGame = () => {
-    let name = "Player";
-    try {
-        name = localStorage.getItem("rummy_username") || "Player";
-    } catch(e) {}
-    
-    sendData({ 
-        cmd: "join", 
-        name: name 
-    });
-  };
 
   if (socket.readyState === WebSocket.OPEN) {
     joinGame();

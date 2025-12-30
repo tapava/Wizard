@@ -51,43 +51,40 @@ handle.cards = (data) => {
   updatePlayerNames(playerNames, myIndex);
 
   // Clear previous cards and containers
-  $("#cards").empty(); // This clears all hand containers, deck, and pile too.
+  $("#cards").empty();
 
   // Prepare cards for my hand
-  hand.forEach((card) => {
-    card.html = `<div class="card _${card.rank} ${card.suit} myhand"></div>`;
-  });
-
-  // Prepare cards for pile
-  pile.forEach((card, i) => {
-    card.html = `<div class="card _${card.rank} ${card.suit} pile pile_${i}"></div>`;
-  });
-
-  // Prepare cards for deck
-  deck = createFakeCards("deck", deckCount); // createFakeCards now returns objects with html string
-
-  // Prepare opponent hands
-  ophands = [[], [], [], []]; // Clear previous ophands
-  for (let i = 0; i < 4; i++) {
-    if (i === myIndex) continue; // Skip my own hand
-
-    let relPos = (myIndex - i + 4) % 4; // Calculate relative position
-    let count = opponentCardCounts[i];
-
-    // Create fake cards for opponent hand and store in ophands
-    ophands[relPos] = createFakeCards(`opponent${relPos}`, count); // returns array of {html: string}
+  if (hand && hand.length) {
+    hand.forEach((card) => {
+      card.html = `<div class="card _${card.rank} ${card.suit} myhand"></div>`;
+    });
+    renderHand(hand, 0);
   }
 
-  // Now render everything
-  renderHand(hand, 0); // Render my hand
-  renderDeck(pile, false); // Render discard pile
-  renderDeck(deck, true); // Render main deck
+  // Prepare cards for pile
+  if (pile && pile.length) {
+    pile.forEach((card, i) => {
+      card.html = `<div class="card _${card.rank} ${card.suit} pile pile_${i}"></div>`;
+    });
+    renderDeck(pile, false);
+  }
 
-  // Render opponent hands after deck/pile so they don't overlap in z-index issues
+  // Prepare cards for deck
+  deck = createFakeCards("deck", deckCount);
+  if (deck && deck.length) {
+    renderDeck(deck, true);
+  }
+
+  // Prepare opponent hands
+  ophands = [[], [], [], []];
   for (let i = 0; i < 4; i++) {
     if (i === myIndex) continue;
     let relPos = (myIndex - i + 4) % 4;
-    renderHand(ophands[relPos], relPos);
+    let count = opponentCardCounts[i];
+    ophands[relPos] = createFakeCards(`opponent${relPos}`, count);
+    if (ophands[relPos] && ophands[relPos].length) {
+      renderHand(ophands[relPos], relPos);
+    }
   }
 
   setClickHandle();

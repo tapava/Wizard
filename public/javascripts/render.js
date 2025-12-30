@@ -5,6 +5,7 @@
 let setElementPos = (element, x, y, z = 2, degs = 0) => {
   // Sets an elements position via CSS
   // `element` is now a jQuery object or a DOM element
+  let scale = 0.6;
   $(element).css({
     transform: `translateX(${x}px) translateY(${y}px) rotateZ(${degs}deg) scale(${scale})`,
     MozTransform: `translateX(${x}px) translateY(${y}px) rotateZ(${degs}deg) scale(${scale})`,
@@ -29,7 +30,9 @@ let renderHand = (handCards, position = 0) => {
 
   let handContainerId = `#hand-pos-${position}`;
   if ($(handContainerId).length === 0) {
-    $("#cards").append(`<div id="hand-pos-${position}" class="hand-container"></div>`);
+    $("#cards").append(
+      `<div id="hand-pos-${position}" class="hand-container"></div>`
+    );
   }
   $(handContainerId).empty(); // Clear existing cards in this container
 
@@ -70,7 +73,7 @@ let renderHand = (handCards, position = 0) => {
 
   // Append new cards to the container first
   let appendedCardElements = [];
-  for(let card of handCards) {
+  for (let card of handCards) {
     let $cardElement = $(card.html);
     $(handContainerId).append($cardElement);
     appendedCardElements.push($cardElement);
@@ -127,93 +130,62 @@ let renderDeck = (cards, isDeck = false) => {
   // Renders deck (isDeck=true for main deck, isDeck=false for discard pile)
   let containerId = isDeck ? "#deck-container" : "#pile-container";
   if ($(containerId).length === 0) {
-    $("#cards").append(`<div id="${isDeck ? "deck-container" : "pile-container"}" class="card-stack-container"></div>`);
+    $("#cards").append(
+      `<div id="${
+        isDeck ? "deck-container" : "pile-container"
+      }" class="card-stack-container"></div>`
+    );
   }
   $(containerId).empty();
 
-  let offset = isDeck ? $(window).width() / 2 - 200 : $(window).width() / 2 + 40;
+  let offset = isDeck
+    ? $(window).width() / 2 - 200
+    : $(window).width() / 2 + 40;
 
   let appendedCardElements = [];
-  for(let card of cards) {
+  for (let card of cards) {
     let $cardElement = $(card.html);
     $(containerId).append($cardElement);
     appendedCardElements.push($cardElement);
   }
 
   for (let i = 0; i < appendedCardElements.length; i++) {
-    setElementPos(appendedCardElements[i], offset, $(window).height() / 2 - 99, i + 2, 0);
+    setElementPos(
+      appendedCardElements[i],
+      offset,
+      $(window).height() / 2 - 99,
+      i + 2,
+      0
+    );
   }
 };
 
 let renderMelds = (melds) => {
   // Renders Melds
-  // This function will need similar adjustments if melds are not appearing
-  // For now, it might be fine if melds are appended directly to #cards with unique IDs
-  // ...
   let meldsContainerId = "#melds-container";
   if ($(meldsContainerId).length === 0) {
     $("#cards").append(`<div id="melds-container"></div>`);
   }
   $(meldsContainerId).empty();
 
-  let height = 10,
-    offset = 10;
+  let yOffset = 10;
+  let xOffset = 10;
+  let meldSpacing = 120;
+  let cardSpacing = 30;
 
-  for (let i in melds) {
-    for (let j in melds[i]) {
-      let card = melds[i][j];
+  for (let i = 0; i < melds.length; i++) {
+    let meld = melds[i];
+    for (let j = 0; j < meld.length; j++) {
+      let card = meld[j];
       let $cardElement = $(card.html);
       $(meldsContainerId).append($cardElement);
-      setElementPos($cardElement, offset + j * 20, height, i + j + 100, 0);
-    }
-
-    height += 220;
-    if (height + 200 > $(window).height()) {
-      // Start a new column if they go off screen
-      height = 10;
-      offset += 240;
-    }
-  }
-};
-
-let renderHint = () => {
-  // Render hint msg in the top right
-
-  setElementPos({ html: "#hints" }, $(window).width() - 200, 10, 9999);
-};
-
-let updatePlayerNames = (names, myIdx) => {
-  // Map absolute player indices to relative positions
-  // 0=Me, 1=Right, 2=Top, 3=Left (Anti-clockwise from my perspective)
-  
-  // Logic from main.js getRelativePos:
-  // let getRelativePos = (actorIndex) => {
-  //   let diff = (myIndex - actorIndex + 4) % 4;
-  //   return diff;
-  // };
-  
-  // And matching with UI:
-  // relPos 0 -> #nameBadge0 (Bottom/Me)
-  // relPos 1 -> #nameBadge3 (Right)
-  // relPos 2 -> #nameBadge2 (Top)
-  // relPos 3 -> #nameBadge1 (Left)
-
-  for (let i = 0; i < 4; i++) {
-    let name = names[i];
-    // Default to "CPU" if name is empty or just "Player X"
-    if (!name) name = `CPU ${i}`;
-    
-    let relPos = (myIdx - i + 4) % 4; // 0, 1, 2, 3
-    
-    // Assign to correct badge
-    if (relPos === 0) {
-      $("#nameBadge0").text(name);
-    } else if (relPos === 1) {
-      $("#nameBadge3").text(name);
-    } else if (relPos === 2) {
-      $("#nameBadge2").text(name);
-    } else if (relPos === 3) {
-      $("#nameBadge1").text(name);
+      setElementPos(
+        $cardElement,
+        xOffset + i * meldSpacing + j * cardSpacing,
+        yOffset + i * 50,
+        10 + j,
+        0
+      );
     }
   }
 };
