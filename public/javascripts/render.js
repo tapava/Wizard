@@ -189,3 +189,13 @@ let renderMelds = (melds) => {
     }
   }
 };
+
+let renderHint = () => {
+  // If you want to show a hint, set the text here.
+  // This is a placeholder. You can expand it as needed.
+  if (window.currentHint) {
+    $("#hints").text(window.currentHint).fadeIn(180);
+  } else {
+    $("#hints").fadeOut(400);
+  }
+};

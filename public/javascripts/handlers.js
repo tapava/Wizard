@@ -1,7 +1,17 @@
 // Simple handlers for new protocol
+// Updates player name badges in the UI
+function updatePlayerNames(playerNames, myIndex) {
+  for (let i = 0; i < 4; i++) {
+    const relPos = (i - myIndex + 4) % 4;
+    const badge = document.getElementById(`player-name-${relPos}`);
+    if (badge) {
+      badge.textContent = playerNames[i] + (i === myIndex ? " (You)" : "");
+    }
+  }
+}
 let showHint = (msg, t = 3000) => {
   $("#hints").text(msg).fadeIn(180);
-  if (t > 0) setTimeout(() => $("#hints").fadeOut(300), t);
+  if (t > 0) setTimeout(() => $("#hints").fadeOut(400), t);
 };
 
 // Global Game Objects - Moved from main.js
@@ -176,7 +186,7 @@ handle.discard = (data) => {
 handle.phase = (data) => {
   turn = data.turn;
   phase = data.phase;
-  let name = playerNames ? playerNames[turn] : `Player ${turn}`;
+  let name = playerNames[turn];
   $("#turnTracker").text(`Turn: ${name}`);
 
   if (turn === myIndex) {

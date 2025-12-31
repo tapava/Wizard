@@ -194,7 +194,7 @@ body {
 #hints {
   position: fixed;
   top: 12px;
-  right: 12px;
+  right: 20px;
   min-width: 220px;
   max-width: 320px;
   background: rgba(40, 40, 40, 0.72);

@@ -6,21 +6,6 @@ let params = window.location.href.split("/"); // Extract Code and Token from URL
 let code = params[4],
   token = params[5];
 
-// Local Game Objects - MOVED TO handlers.js
-/*
-let hand = [],
-  ophands = [[], [], [], []], // Array of opponent hands
-  deck = [],
-  draw = [],
-  melds = [],
-  pile = [], // Discard pile
-  playerNames = [],
-  turn = -1,
-  phase = ""; // "draw" or "discard"
-
-let myIndex = -1;
-*/
-
 // Helper to get relative position (0=Me, 1=Right, 2=Top, 3=Left) for anticlockwise Tunisian Rummy
 let getRelativePos = (actorIndex) => {
   let diff = (myIndex - actorIndex + 4) % 4;
@@ -96,10 +81,6 @@ let setClickHandle = () => {
   });
 };
 
-// ... (existing code for getCard, createFakeCards, sortDeck, beginLeave, window resize) ...
-
-// ... (existing code for getCard, sortDeck, beginLeave, window resize) ...
-
 let getCard = (collection, targetCard) => {
   // Find Card
   for (let card of collection) {
@@ -109,22 +90,6 @@ let getCard = (collection, targetCard) => {
   }
   return null;
 };
-
-/* createFakeCards function moved to handlers.js
-let createFakeCards = (name, n) => {
-  // Creates fake cards (to mask true identity until played/drawn)
-  let cards = [];
-  for (let i = 0; i < n; i++) {
-    let cardHtml = `<div class="card ${name} fake_${i} unknown"></div>`;
-    cards.push({
-      html: cardHtml, // Store raw HTML string
-      suit: "none",
-      rank: "none",
-    });
-  }
-  return cards;
-};
-*/
 
 let sortDeck = (cards) => {
   // In-place sorts cards
@@ -178,7 +143,9 @@ $(function () {
     if (e.target === this) $("#tipsModal").fadeOut(120);
   });
   $("#quitGameBtn").on("click", () => {
-    window.location.href = "/";
+    if (confirm("Are you sure you want to quit the game?")) {
+      window.location.href = "/";
+    }
   });
 
   if (socket.readyState === WebSocket.OPEN) {

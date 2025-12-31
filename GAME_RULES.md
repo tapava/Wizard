@@ -40,12 +40,12 @@ Ace can be:
 
 ## 5. Dealing
 
-- Each player gets **14 cards** except first player who gets **15** cards
+- Each player gets **14 cards**
 - Remaining cards form the **draw pile**
-- first player starts by discarding one card in the
-  **discard pile**
-- the second player draws from the **draw pile**
-- the game continues
+- first player starts by drawing from the **draw pile**
+- each player draws one card from the
+  **draw pile** then discards one card to the **discard pile**
+- the game continues until someone has valid melds totaling at least **71 points** to open
 
 ## 6. Valid Melds
 
