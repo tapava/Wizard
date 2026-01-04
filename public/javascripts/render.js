@@ -161,38 +161,42 @@ let renderDeck = (cards, isDeck = false) => {
 };
 
 let renderMelds = (melds) => {
-  // Renders Melds
+  // Renders Melds on the table
   let meldsContainerId = "#melds-container";
   if ($(meldsContainerId).length === 0) {
     $("#cards").append(`<div id="melds-container"></div>`);
   }
   $(meldsContainerId).empty();
 
-  let yOffset = 10;
-  let xOffset = 10;
-  let meldSpacing = 120;
-  let cardSpacing = 30;
+  let startY = 80;
+  let startX = 10;
+  let meldSpacing = 160;
+  let cardSpacing = 35;
+  let maxMeldsPerRow = Math.floor(($(window).width() - 20) / meldSpacing);
 
   for (let i = 0; i < melds.length; i++) {
     let meld = melds[i];
-    for (let j = 0; j < meld.length; j++) {
-      let card = meld[j];
-      let $cardElement = $(card.html);
+    let cards = meld.cards || meld; // Handle both {cards, owner} and raw array
+
+    let row = Math.floor(i / maxMeldsPerRow);
+    let col = i % maxMeldsPerRow;
+
+    for (let j = 0; j < cards.length; j++) {
+      let card = cards[j];
+      let cardHtml = `<div class="card _${card.rank} ${card.suit} meld-card"></div>`;
+      let $cardElement = $(cardHtml);
       $(meldsContainerId).append($cardElement);
-      setElementPos(
-        $cardElement,
-        xOffset + i * meldSpacing + j * cardSpacing,
-        yOffset + i * 50,
-        10 + j,
-        0
-      );
+
+      let x = startX + col * meldSpacing + j * cardSpacing;
+      let y = startY + row * 120;
+
+      setElementPos($cardElement, x, y, 10 + j, 0);
     }
   }
 };
 
 let renderHint = () => {
-  // If you want to show a hint, set the text here.
-  // This is a placeholder. You can expand it as needed.
+  // Placeholder for hint rendering
   if (window.currentHint) {
     $("#hints").text(window.currentHint).fadeIn(180);
   } else {
